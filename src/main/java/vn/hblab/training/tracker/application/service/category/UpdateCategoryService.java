@@ -22,7 +22,7 @@ public class UpdateCategoryService implements UpdateCategoryUseCase {
     @Override
     public CategoryResponse execute(UpdateCategoryCommand command) {
         Category existing = categoryRepository.findById(command.id())
-                .orElseThrow(() -> new RuntimeException("Category không tồn tại"));
+                .orElseThrow(() -> new NotFoundException("Category không tồn tại"));
 
         if (!existing.getUserId().equals(command.userId())) {
             throw new UnauthorizedException("Không có quyền chỉnh sửa category này");
@@ -34,4 +34,5 @@ public class UpdateCategoryService implements UpdateCategoryUseCase {
         return new CategoryResponse(updated.getId(), updated.getName());
     }
 }
+
 

@@ -22,7 +22,7 @@ public class DeleteCategoryService implements DeleteCategoryUseCase {
     @Override
     public void execute(UUID id, String userId) {
         Category existing = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category không tồn tại"));
+                .orElseThrow(() -> new NotFoundException("Category không tồn tại"));
 
         if (!existing.getUserId().equals(userId)) {
             throw new UnauthorizedException("Không có quyền xóa category này");
@@ -31,4 +31,5 @@ public class DeleteCategoryService implements DeleteCategoryUseCase {
         categoryRepository.deleteById(id);
     }
 }
+
 

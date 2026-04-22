@@ -22,7 +22,7 @@ public class DeleteExpenseService implements DeleteExpenseUseCase {
     @Override
     public void execute(UUID id, String userId) {
         Expense existing = expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Chi tiêu không tồn tại"));
+                .orElseThrow(() -> new NotFoundException("Chi tiêu không tồn tại"));
 
         if (!existing.getUserId().equals(userId)) {
             throw new UnauthorizedException("Không có quyền xóa chi tiêu này");
@@ -31,4 +31,5 @@ public class DeleteExpenseService implements DeleteExpenseUseCase {
         expenseRepository.deleteById(id);
     }
 }
+
 

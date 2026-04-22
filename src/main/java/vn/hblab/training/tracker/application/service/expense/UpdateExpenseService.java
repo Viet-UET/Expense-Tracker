@@ -22,7 +22,7 @@ public class UpdateExpenseService implements UpdateExpenseUseCase {
     @Override
     public ExpenseResponse execute(UpdateExpenseCommand command) {
         Expense existing = expenseRepository.findById(command.id())
-                .orElseThrow(() -> new RuntimeException("Chi tiêu không tồn tại"));
+                .orElseThrow(() -> new NotFoundException("Chi tiêu không tồn tại"));
 
         if (!existing.getUserId().equals(command.userId())) {
             throw new UnauthorizedException("Không có quyền chỉnh sửa chi tiêu này");
@@ -39,4 +39,5 @@ public class UpdateExpenseService implements UpdateExpenseUseCase {
         return CreateExpenseService.toResponse(updated);
     }
 }
+
 
