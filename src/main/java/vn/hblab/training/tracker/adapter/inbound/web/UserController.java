@@ -1,11 +1,13 @@
 package vn.hblab.training.tracker.adapter.inbound.web;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import vn.hblab.training.tracker.adapter.inbound.web.request.LoginRequest;
+import vn.hblab.training.tracker.adapter.inbound.web.request.RefreshTokenRequest;
 import vn.hblab.training.tracker.adapter.inbound.web.request.RegisterUserRequest;
 import vn.hblab.training.tracker.application.dto.command.LoginCommand;
 import vn.hblab.training.tracker.application.dto.command.RefreshTokenCommand;
@@ -26,9 +28,9 @@ public class UserController {
     private final LogoutUseCase logoutUseCase;
 
     public UserController(RegisterUserUseCase registerUserUseCase,
-                          LoginUseCase loginUseCase,
-                          RefreshTokenUseCase refreshTokenUseCase,
-                          LogoutUseCase logoutUseCase) {
+            LoginUseCase loginUseCase,
+            RefreshTokenUseCase refreshTokenUseCase,
+            LogoutUseCase logoutUseCase) {
         this.registerUserUseCase = registerUserUseCase;
         this.loginUseCase = loginUseCase;
         this.refreshTokenUseCase = refreshTokenUseCase;
@@ -36,44 +38,27 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody RegisterUserRequest request) {
-        try {
-            RegisterUserCommand command = new RegisterUserCommand(request.userName(), request.passWord());
-            registerUserUseCase.execute(command);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterUserRequest request) {
+        registerUserUseCase.execute(new RegisterUserCommand(request.userName(), request.passWord()));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        try {
-            LoginCommand command = new LoginCommand(request.userName(), request.passWord());
-            return ResponseEntity.ok(loginUseCase.execute(command));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = loginUseCase.execute(new LoginCommand(request.userName(), request.passWord()));
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenCommand command) {
-        try {
-            return ResponseEntity.ok(refreshTokenUseCase.execute(command));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(refreshTokenUseCase.execute(new RefreshTokenCommand(request.refreshToken())));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-        try {
-            String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-            logoutUseCase.execute(userId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        logoutUseCase.execute(userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")

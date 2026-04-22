@@ -1,39 +1,40 @@
 package vn.hblab.training.tracker.adapter.outbound.persistence.repository;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Repository;
 
 import vn.hblab.training.tracker.adapter.outbound.persistence.entity.UserEntity;
-import vn.hblab.training.tracker.adapter.outbound.persistence.mapper.UserMapper;
 import vn.hblab.training.tracker.adapter.outbound.persistence.springdata.UserSpringDataRepository;
 import vn.hblab.training.tracker.domain.model.user.User;
 import vn.hblab.training.tracker.domain.repository.UserRepository;
 
+import java.util.Optional;
+
 @Repository
 public class JpaUserRepository implements UserRepository {
-    private final UserSpringDataRepository userSpringDataRepository;
-    private final UserMapper userMapper;
 
-    public JpaUserRepository(UserSpringDataRepository userSpringDataRepository, UserMapper userMapper) {
-        this.userSpringDataRepository = userSpringDataRepository;
-        this.userMapper = userMapper;
+    private final UserSpringDataRepository springDataRepo;
+
+    public JpaUserRepository(UserSpringDataRepository springDataRepo) {
+        this.springDataRepo = springDataRepo;
     }
 
     @Override
     public void save(User user) {
-        UserEntity userEntity = userMapper.toEntity(user);
-        userSpringDataRepository.save(userEntity);
+        UserEntity entity = new UserEntity();
+        entity.setId(user.getId());
+        entity.setUserName(user.getUserName());
+        entity.setHashPassWord(user.getPasswordHash());
+        springDataRepo.save(entity);
     }
 
     @Override
     public Optional<User> findByUserName(String userName) {
-        return userSpringDataRepository.findByUserName(userName)
-                .map(userMapper::toDomain);
+        return springDataRepo.findByUserName(userName)
+                .map(e -> new User(e.getId(), e.getUserName(), e.getHashPassWord()));
     }
 
     @Override
     public boolean existsByUserName(String userName) {
-        return userSpringDataRepository.existsByUserName(userName);
+        return springDataRepo.existsByUserName(userName);
     }
 }
