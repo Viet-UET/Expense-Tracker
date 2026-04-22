@@ -21,6 +21,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("java:S112") // Spring Security yêu cầu throws Exception
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())

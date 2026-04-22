@@ -45,6 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (Exception e) {
+            // Token không hợp lệ hoặc hết hạn — bỏ qua, request tiếp tục không có auth
         }
 
         filterChain.doFilter(request, response);
