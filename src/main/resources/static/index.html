@@ -146,6 +146,9 @@ input::placeholder{color:var(--muted)}
     <div class="nav-item active" onclick="navigate('categories')">
       <span class="nav-icon">🗂️</span> Danh mục
     </div>
+    <div class="nav-item" onclick="navigate('expenses')">
+      <span class="nav-icon">💸</span> Chi tiêu
+    </div>
     <div class="nav-item" onclick="navigate('auth')">
       <span class="nav-icon">🔐</span> Tài khoản
     </div>
@@ -227,6 +230,30 @@ input::placeholder{color:var(--muted)}
       </div>
     </div>
 
+    <!-- EXPENSES PAGE -->
+    <div class="page" id="page-expenses">
+      <div class="page-header">
+        <div><h2>Chi tiêu</h2><p>Ghi lại các khoản chi tiêu hàng ngày</p></div>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="card-header"><div class="card-title">Thêm chi tiêu mới</div></div>
+        <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div class="field"><label>Danh mục</label>
+            <select id="exp-cat" style="width:100%;padding:.65rem .9rem;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none">
+              <option value="">-- Chọn danh mục --</option>
+            </select>
+          </div>
+          <div class="field"><label>Số tiền (VNĐ)</label><input id="exp-amount" type="number" min="1" placeholder="50000"/></div>
+          <div class="field"><label>Mô tả</label><input id="exp-desc" type="text" placeholder="Ăn phở, đổ xăng..."/></div>
+          <div class="field"><label>Ngày</label><input id="exp-date" type="date"/></div>
+          <div style="grid-column:1/-1">
+            <button class="btn btn-success" style="width:100%" onclick="createExpense()">＋ Thêm chi tiêu</button>
+          </div>
+        </div>
+      </div>
+      <div id="exp-list"><div class="empty"><div class="empty-icon">💸</div><p>Chưa có chi tiêu nào</p></div></div>
+    </div>
+
   </div>
 </div>
 
@@ -279,11 +306,21 @@ function navigate(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  const idx=page==='categories'?0:1;
-  document.querySelectorAll('.nav-item')[idx].classList.add('active');
-  const titles={categories:['Danh mục','Quản lý danh mục chi tiêu'],auth:['Tài khoản','Đăng nhập hoặc đăng ký']};
-  document.getElementById('topbar-title').textContent=titles[page][0];
-  document.getElementById('topbar-sub').textContent=titles[page][1];
+  const pages=['categories','expenses','auth'];
+  const idx=pages.indexOf(page);
+  if(idx>=0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+  const titles={
+    categories:['Danh mục','Quản lý danh mục chi tiêu'],
+    expenses:['Chi tiêu','Ghi lại các khoản chi tiêu hàng ngày'],
+    auth:['Tài khoản','Đăng nhập hoặc đăng ký']
+  };
+  if(titles[page]){
+    document.getElementById('topbar-title').textContent=titles[page][0];
+    document.getElementById('topbar-sub').textContent=titles[page][1];
+  }
+  if(page==='expenses'&&token){loadCategoryDropdown();getExpenses();}
+  const expDate=document.getElementById('exp-date');
+  if(expDate&&!expDate.value) expDate.valueAsDate=new Date();
 }
 
 function authTab(t){
@@ -303,7 +340,10 @@ async function login(){
     localStorage.setItem('et_token',token);
     updateUI();navigate('categories');getCategories();
     log(`✅ Đăng nhập thành công: ${userName}`,'ok');
-  }else log(`❌ ${r.status}: Sai tên đăng nhập hoặc mật khẩu`,'err');
+  }else{
+    const msg=r.data?.message||r.data||'Sai tên đăng nhập hoặc mật khẩu';
+    log(`❌ ${r.status}: ${msg}`,'err');
+  }
 }
 
 async function register(){
@@ -316,7 +356,10 @@ async function register(){
     log(`✅ Đăng ký thành công! Hãy đăng nhập`,'ok');
     authTab('login');
     document.getElementById('l-user').value=userName;
-  }else log(`❌ ${r.status}: Đăng ký thất bại`,'err');
+  }else{
+    const msg=r.data?.message||r.data||'Đăng ký thất bại';
+    log(`❌ ${r.status}: ${msg}`,'err');
+  }
 }
 
 async function logout(){
@@ -395,6 +438,73 @@ async function deleteCategory(id){
   if(r.ok||r.status===204){log('✅ Đã xóa','ok');getCategories();}
   else log(`❌ ${r.status}: ${JSON.stringify(r.data)}`,'err');
 }
+
+// ── Expenses ──────────────────────────────────────────
+let categoriesCache=[];
+
+async function loadCategoryDropdown(){
+  const r=await api('GET','/api/categories');
+  if(r.ok){
+    categoriesCache=r.data;
+    const sel=document.getElementById('exp-cat');
+    sel.innerHTML='<option value="">-- Chọn danh mục --</option>'+
+      r.data.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  }
+}
+
+async function getExpenses(){
+  if(!token)return;
+  log('GET /api/expenses','info');
+  const r=await api('GET','/api/expenses');
+  const list=document.getElementById('exp-list');
+  if(r.ok){
+    log(`✅ ${r.data.length} chi tiêu`,'ok');
+    if(!r.data.length){list.innerHTML='<div class="empty"><div class="empty-icon">💸</div><p>Chưa có chi tiêu nào</p></div>';return;}
+    const catMap=Object.fromEntries(categoriesCache.map(c=>[c.id,c.name]));
+    list.innerHTML=r.data.map(e=>{
+      const catName=catMap[e.categoryId]||e.categoryId.substring(0,8)+'...';
+      const amt=Number(e.amount).toLocaleString('vi-VN');
+      return `<div class="cat-card" id="ecard-${e.id}" style="margin-bottom:.5rem">
+        <div class="cat-icon c1">💸</div>
+        <div class="cat-info">
+          <div class="cat-name">${amt} đ — ${catName}</div>
+          <div class="cat-id">${e.description||'(không có mô tả)'} · ${e.date}</div>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-icon" style="color:var(--danger)" onclick="deleteExpense('${e.id}')">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  }else log(`❌ ${r.status}`,'err');
+}
+
+async function createExpense(){
+  if(!token){navigate('auth');return;}
+  const categoryId=document.getElementById('exp-cat').value;
+  const amount=document.getElementById('exp-amount').value;
+  const description=document.getElementById('exp-desc').value;
+  const date=document.getElementById('exp-date').value||new Date().toISOString().split('T')[0];
+  if(!categoryId||!amount){log('⚠️ Vui lòng chọn danh mục và nhập số tiền','warn');return;}
+  log(`POST /api/expenses → ${amount}đ`,'info');
+  const r=await api('POST','/api/expenses',{categoryId,amount:parseFloat(amount),description,date});
+  if(r.ok){
+    log(`✅ Đã thêm: ${Number(r.data.amount).toLocaleString('vi-VN')}đ`,'ok');
+    document.getElementById('exp-amount').value='';
+    document.getElementById('exp-desc').value='';
+    getExpenses();
+  }else log(`❌ ${r.status}: ${JSON.stringify(r.data)}`,'err');
+}
+
+async function deleteExpense(id){
+  if(!confirm('Xóa chi tiêu này?'))return;
+  log(`DELETE /api/expenses/${id.substring(0,8)}...`,'info');
+  const r=await api('DELETE',`/api/expenses/${id}`);
+  if(r.ok||r.status===204){log('✅ Đã xóa','ok');getExpenses();}
+  else log(`❌ ${r.status}`,'err');
+}
+
+
+
 
 // Init
 updateUI();

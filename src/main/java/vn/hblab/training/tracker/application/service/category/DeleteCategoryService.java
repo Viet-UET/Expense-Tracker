@@ -1,4 +1,4 @@
-package vn.hblab.training.tracker.application.service.category;
+﻿package vn.hblab.training.tracker.application.service.category;
 
 import org.springframework.stereotype.Service;
 
@@ -7,6 +7,8 @@ import vn.hblab.training.tracker.domain.model.category.Category;
 import vn.hblab.training.tracker.domain.repository.CategoryRepository;
 
 import java.util.UUID;
+import vn.hblab.training.tracker.domain.exception.NotFoundException;
+import vn.hblab.training.tracker.domain.exception.UnauthorizedException;
 
 @Service
 public class DeleteCategoryService implements DeleteCategoryUseCase {
@@ -23,9 +25,10 @@ public class DeleteCategoryService implements DeleteCategoryUseCase {
                 .orElseThrow(() -> new RuntimeException("Category không tồn tại"));
 
         if (!existing.getUserId().equals(userId)) {
-            throw new RuntimeException("Không có quyền xóa category này");
+            throw new UnauthorizedException("Không có quyền xóa category này");
         }
 
         categoryRepository.deleteById(id);
     }
 }
+

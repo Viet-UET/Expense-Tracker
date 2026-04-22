@@ -1,4 +1,4 @@
-package vn.hblab.training.tracker.application.service.user;
+﻿package vn.hblab.training.tracker.application.service.user;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -9,6 +9,8 @@ import vn.hblab.training.tracker.domain.model.user.User;
 import vn.hblab.training.tracker.domain.repository.UserRepository;
 
 import java.util.UUID;
+import vn.hblab.training.tracker.domain.exception.NotFoundException;
+import vn.hblab.training.tracker.domain.exception.UnauthorizedException;
 
 @Service
 public class RegisterUserService implements RegisterUserUseCase {
@@ -22,7 +24,7 @@ public class RegisterUserService implements RegisterUserUseCase {
     @Override
     public void execute(RegisterUserCommand command) {
         if (userRepository.existsByUserName(command.userName())) {
-            throw new RuntimeException("Username đã tồn tại");
+            throw new IllegalArgumentException("Username đã tồn tại");
         }
 
         String hashPassword = BCrypt.hashpw(command.passWord(), BCrypt.gensalt());
@@ -32,3 +34,4 @@ public class RegisterUserService implements RegisterUserUseCase {
         userRepository.save(newUser);
     }
 }
+
