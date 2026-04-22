@@ -143,13 +143,13 @@ input::placeholder{color:var(--muted)}
   </div>
   <nav class="nav-section">
     <div class="nav-label">Menu</div>
-    <div class="nav-item active" onclick="navigate('categories')">
+    <div class="nav-item active" role="button" tabindex="0" onclick="navigate('categories')" onkeydown="if(event.key==='Enter')navigate('categories')">
       <span class="nav-icon">🗂️</span> Danh mục
     </div>
-    <div class="nav-item" onclick="navigate('expenses')">
+    <div class="nav-item" role="button" tabindex="0" onclick="navigate('expenses')" onkeydown="if(event.key==='Enter')navigate('expenses')">
       <span class="nav-icon">💸</span> Chi tiêu
     </div>
-    <div class="nav-item" onclick="navigate('auth')">
+    <div class="nav-item" role="button" tabindex="0" onclick="navigate('auth')" onkeydown="if(event.key==='Enter')navigate('auth')">
       <span class="nav-icon">🔐</span> Tài khoản
     </div>
   </nav>
@@ -189,8 +189,8 @@ input::placeholder{color:var(--muted)}
             <div class="card-sub">Đăng nhập để quản lý chi tiêu của bạn</div>
           </div>
           <div class="tabs">
-            <div class="tab active" onclick="authTab('login')">Đăng nhập</div>
-            <div class="tab" onclick="authTab('register')">Đăng ký</div>
+            <div class="tab active" role="button" tabindex="0" onclick="authTab('login')" onkeydown="if(event.key==='Enter')authTab('login')">Đăng nhập</div>
+            <div class="tab" role="button" tabindex="0" onclick="authTab('register')" onkeydown="if(event.key==='Enter')authTab('register')">Đăng ký</div>
           </div>
           <div class="tab-pane active" id="pane-login">
             <div class="field"><label>Tên đăng nhập</label><input id="l-user" type="text" placeholder="username"/></div>
