@@ -8,7 +8,6 @@ import vn.hblab.training.tracker.application.security.TokenGenerator;
 import vn.hblab.training.tracker.application.usecase.user.RefreshTokenUseCase;
 import vn.hblab.training.tracker.domain.model.refreshtoken.RefreshToken;
 import vn.hblab.training.tracker.domain.repository.RefreshTokenRepository;
-import vn.hblab.training.tracker.domain.exception.NotFoundException;
 import vn.hblab.training.tracker.domain.exception.UnauthorizedException;
 
 @Service
@@ -18,7 +17,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
     private final TokenGenerator tokenGenerator;
 
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository,
-                               TokenGenerator tokenGenerator) {
+            TokenGenerator tokenGenerator) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.tokenGenerator = tokenGenerator;
     }
@@ -37,4 +36,3 @@ public class RefreshTokenService implements RefreshTokenUseCase {
         return new AuthResponse(newAccessToken, refreshToken.getToken());
     }
 }
-

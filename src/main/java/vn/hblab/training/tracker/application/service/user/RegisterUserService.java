@@ -9,8 +9,6 @@ import vn.hblab.training.tracker.domain.model.user.User;
 import vn.hblab.training.tracker.domain.repository.UserRepository;
 
 import java.util.UUID;
-import vn.hblab.training.tracker.domain.exception.NotFoundException;
-import vn.hblab.training.tracker.domain.exception.UnauthorizedException;
 
 @Service
 public class RegisterUserService implements RegisterUserUseCase {
@@ -34,4 +32,3 @@ public class RegisterUserService implements RegisterUserUseCase {
         userRepository.save(newUser);
     }
 }
-
