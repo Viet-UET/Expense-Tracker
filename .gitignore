@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Static frontend (do not push to GitHub) ###
+src/main/resources/static/index.html
