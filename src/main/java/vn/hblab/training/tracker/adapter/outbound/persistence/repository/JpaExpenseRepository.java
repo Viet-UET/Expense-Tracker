@@ -7,6 +7,8 @@ import vn.hblab.training.tracker.adapter.outbound.persistence.springdata.Expense
 import vn.hblab.training.tracker.domain.model.expense.Expense;
 import vn.hblab.training.tracker.domain.repository.ExpenseRepository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,6 +50,12 @@ public class JpaExpenseRepository implements ExpenseRepository {
     @Override
     public void deleteById(UUID id) {
         springDataRepo.deleteById(id);
+    }
+
+    @Override
+    public BigDecimal sumByUserIdAndCategoryIdAndDateBetween(
+            String userId, UUID categoryId, LocalDate from, LocalDate to) {
+        return springDataRepo.sumAmountByUserIdAndCategoryIdAndDateBetween(userId, categoryId, from, to);
     }
 
     private Expense toDomain(ExpenseEntity e) {

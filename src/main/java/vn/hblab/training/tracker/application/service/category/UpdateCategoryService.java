@@ -1,4 +1,4 @@
-﻿package vn.hblab.training.tracker.application.service.category;
+package vn.hblab.training.tracker.application.service.category;
 
 import org.springframework.stereotype.Service;
 
@@ -34,5 +34,3 @@ public class UpdateCategoryService implements UpdateCategoryUseCase {
         return new CategoryResponse(updated.getId(), updated.getName());
     }
 }
-
-

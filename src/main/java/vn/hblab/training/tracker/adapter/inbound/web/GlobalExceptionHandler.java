@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import vn.hblab.training.tracker.application.dto.response.ErrorResponse;
+import vn.hblab.training.tracker.domain.exception.ConflictException;
 import vn.hblab.training.tracker.domain.exception.NotFoundException;
 import vn.hblab.training.tracker.domain.exception.UnauthorizedException;
 
@@ -23,6 +24,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(404, "Not Found", e.getMessage()));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(ConflictException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(409, "Conflict", e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -131,6 +131,34 @@ input::placeholder{color:var(--muted)}
 .c5{background:rgba(59,130,246,.15)}
 .c6{background:rgba(236,72,153,.15)}
 .c7{background:rgba(20,184,166,.15)}
+
+/* BUDGET */
+.budget-toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.budget-toolbar input[type=month]{padding:.55rem .9rem;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none}
+.budget-toolbar input[type=month]:focus{border-color:var(--accent)}
+.budget-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.875rem}
+.budget-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.125rem 1.25rem;transition:border-color .2s,transform .15s;animation:fadeUp .25s ease}
+.budget-card:hover{border-color:rgba(99,102,241,.4);transform:translateY(-1px)}
+.budget-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.budget-cat-name{font-size:.9rem;font-weight:600}
+.status-badge{font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:99px;letter-spacing:.04em}
+.status-SAFE{background:rgba(16,185,129,.15);color:#4ade80;border:1px solid rgba(16,185,129,.3)}
+.status-WARNING{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.status-EXCEEDED{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.progress-bar{height:6px;background:var(--card2);border-radius:99px;overflow:hidden;margin-bottom:.75rem}
+.progress-fill{height:100%;border-radius:99px;transition:width .4s ease}
+.fill-SAFE{background:#10b981}
+.fill-WARNING{background:#f59e0b}
+.fill-EXCEEDED{background:#ef4444}
+.budget-amounts{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted2);margin-bottom:.875rem}
+.budget-amounts span strong{color:var(--text);font-size:.82rem}
+.budget-actions{display:flex;gap:.4rem;justify-content:flex-end}
+.budget-form{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem}
+.budget-form-title{font-size:.875rem;font-weight:600;margin-bottom:1rem}
+.budget-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.75rem;align-items:end}
+@media(max-width:700px){.budget-form-grid{grid-template-columns:1fr 1fr}}
+input[type=number]{width:100%;padding:.65rem .9rem;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+input[type=number]:focus{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -148,6 +176,9 @@ input::placeholder{color:var(--muted)}
     </div>
     <div class="nav-item" role="button" tabindex="0" onclick="navigate('expenses')" onkeydown="if(event.key==='Enter')navigate('expenses')">
       <span class="nav-icon">💸</span> Chi tiêu
+    </div>
+    <div class="nav-item" role="button" tabindex="0" onclick="navigate('budgets')" onkeydown="if(event.key==='Enter')navigate('budgets')">
+      <span class="nav-icon">🎯</span> Ngân sách
     </div>
     <div class="nav-item" role="button" tabindex="0" onclick="navigate('auth')" onkeydown="if(event.key==='Enter')navigate('auth')">
       <span class="nav-icon">🔐</span> Tài khoản
@@ -230,6 +261,44 @@ input::placeholder{color:var(--muted)}
       </div>
     </div>
 
+    <!-- BUDGETS PAGE -->
+    <div class="page" id="page-budgets">
+      <div class="page-header">
+        <div><h2>Ngân sách</h2><p>Đặt hạn mức và theo dõi chi tiêu theo danh mục mỗi tháng</p></div>
+      </div>
+      <!-- Form tạo budget -->
+      <div class="budget-form">
+        <div class="budget-form-title">＋ Thêm ngân sách mới</div>
+        <div class="budget-form-grid">
+          <div class="field" style="margin:0">
+            <label>Danh mục</label>
+            <select id="bud-cat" style="width:100%;padding:.65rem .9rem;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none">
+              <option value="">-- Chọn --</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Hạn mức (VNĐ)</label>
+            <input id="bud-limit" type="number" min="1" placeholder="2000000"/>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Tháng</label>
+            <input id="bud-month-create" type="month"/>
+          </div>
+          <button class="btn btn-success" onclick="createBudget()" style="height:42px">Thêm</button>
+        </div>
+      </div>
+      <!-- Toolbar lọc tháng -->
+      <div class="budget-toolbar">
+        <span style="font-size:.8rem;color:var(--muted2);font-weight:500">Xem tháng:</span>
+        <input type="month" id="bud-month-filter" onchange="getBudgets()"/>
+        <button class="btn btn-ghost" style="font-size:.75rem;padding:.4rem .8rem" onclick="getBudgets()">🔄 Tải lại</button>
+      </div>
+      <!-- Danh sách budget -->
+      <div class="budget-grid" id="budget-grid">
+        <div class="empty"><div class="empty-icon">🎯</div><p>Chưa có ngân sách nào</p><small>Đăng nhập và thêm ngân sách đầu tiên!</small></div>
+      </div>
+    </div>
+
     <!-- EXPENSES PAGE -->
     <div class="page" id="page-expenses">
       <div class="page-header">
@@ -306,12 +375,13 @@ function navigate(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  const pages=['categories','expenses','auth'];
+  const pages=['categories','expenses','budgets','auth'];
   const idx=pages.indexOf(page);
   if(idx>=0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
   const titles={
     categories:['Danh mục','Quản lý danh mục chi tiêu'],
     expenses:['Chi tiêu','Ghi lại các khoản chi tiêu hàng ngày'],
+    budgets:['Ngân sách','Đặt hạn mức và theo dõi chi tiêu theo tháng'],
     auth:['Tài khoản','Đăng nhập hoặc đăng ký']
   };
   if(titles[page]){
@@ -319,8 +389,16 @@ function navigate(page){
     document.getElementById('topbar-sub').textContent=titles[page][1];
   }
   if(page==='expenses'&&token){loadCategoryDropdown();getExpenses();}
+  if(page==='budgets'&&token){loadBudgetCategoryDropdown();getBudgets();}
   const expDate=document.getElementById('exp-date');
   if(expDate&&!expDate.value) expDate.valueAsDate=new Date();
+  // Set default month filters
+  const now=new Date();
+  const ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const fc=document.getElementById('bud-month-filter');
+  if(fc&&!fc.value) fc.value=ym;
+  const cc=document.getElementById('bud-month-create');
+  if(cc&&!cc.value) cc.value=ym;
 }
 
 function authTab(t){
@@ -503,8 +581,114 @@ async function deleteExpense(id){
   else log(`❌ ${r.status}`,'err');
 }
 
+// ── Budget ────────────────────────────────────────────
+let budgetCatsCache=[];
 
+async function loadBudgetCategoryDropdown(){
+  const r=await api('GET','/api/categories');
+  if(r.ok){
+    budgetCatsCache=r.data;
+    const sel=document.getElementById('bud-cat');
+    sel.innerHTML='<option value="">-- Chọn --</option>'+
+      r.data.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  }
+}
 
+async function getBudgets(){
+  if(!token)return;
+  const month=document.getElementById('bud-month-filter').value;
+  const q=month?`?month=${month}`:'';
+  log(`GET /api/budgets${q}`,'info');
+  const r=await api('GET',`/api/budgets${q}`);
+  const grid=document.getElementById('budget-grid');
+  if(!r.ok){log(`❌ ${r.status}`,'err');return;}
+  log(`✅ ${r.data.length} ngân sách`,'ok');
+  if(!r.data.length){
+    grid.innerHTML='<div class="empty"><div class="empty-icon">🎯</div><p>Chưa có ngân sách nào tháng này</p><small>Thêm ngân sách bên trên</small></div>';
+    return;
+  }
+  const catMap=Object.fromEntries(budgetCatsCache.map(c=>[c.id,c.name]));
+  grid.innerHTML=r.data.map(b=>{
+    const catName=catMap[b.categoryId]||b.categoryId.substring(0,8)+'...';
+    const pct=Math.min(Math.round((b.spentAmount/b.limitAmount)*100),100);
+    const st=b.status||'SAFE';
+    const stLabel={SAFE:'✅ An toàn',WARNING:'⚠️ Cảnh báo',EXCEEDED:'🚨 Vượt'}[st]||st;
+    const rem=b.remainingAmount;
+    const remLabel=rem>=0?`Còn lại ${rem.toLocaleString('vi-VN')}đ`:`Vượt ${Math.abs(rem).toLocaleString('vi-VN')}đ`;
+    return `<div class="budget-card" id="bcard-${b.id}">
+      <div class="budget-card-top">
+        <div class="budget-cat-name">📁 ${catName}</div>
+        <span class="status-badge status-${st}">${stLabel}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill fill-${st}" style="width:${pct}%"></div></div>
+      <div class="budget-amounts">
+        <span>Đã chi: <strong>${Number(b.spentAmount).toLocaleString('vi-VN')}đ</strong></span>
+        <span>${remLabel}</span>
+        <span>Hạn mức: <strong>${Number(b.limitAmount).toLocaleString('vi-VN')}đ</strong></span>
+      </div>
+      <div class="budget-actions">
+        <button class="btn-icon" onclick="startEditBudget('${b.id}','${b.limitAmount}')" title="Sửa hạn mức">✏️</button>
+        <button class="btn-icon" style="color:var(--danger)" onclick="deleteBudget('${b.id}')" title="Xóa">🗑️</button>
+      </div>
+      <div id="bedit-${b.id}" style="display:none;margin-top:.75rem;display:none">
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input type="number" id="bei-${b.id}" placeholder="Hạn mức mới" style="flex:1;padding:.5rem .75rem;background:var(--card2);border:1px solid var(--accent);border-radius:8px;color:var(--text);font-size:.82rem;font-family:Inter,sans-serif;outline:none"/>
+          <button class="btn btn-icon save" onclick="saveBudgetEdit('${b.id}')">💾 Lưu</button>
+          <button class="btn btn-ghost" style="font-size:.75rem;padding:.35rem .6rem" onclick="cancelBudgetEdit('${b.id}')">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createBudget(){
+  if(!token){navigate('auth');return;}
+  const categoryId=document.getElementById('bud-cat').value;
+  const limitAmount=parseFloat(document.getElementById('bud-limit').value);
+  const month=document.getElementById('bud-month-create').value;
+  if(!categoryId||!limitAmount){log('⚠️ Vui lòng chọn danh mục và nhập hạn mức','warn');return;}
+  const body={categoryId,limitAmount};
+  if(month) body.month=month;
+  log(`POST /api/budgets → ${limitAmount.toLocaleString('vi-VN')}đ`,'info');
+  const r=await api('POST','/api/budgets',body);
+  if(r.ok){
+    log(`✅ Đã tạo ngân sách: ${Number(r.data.limitAmount).toLocaleString('vi-VN')}đ`,'ok');
+    document.getElementById('bud-limit').value='';
+    getBudgets();
+  }else{
+    const msg=r.data?.message||JSON.stringify(r.data);
+    log(`❌ ${r.status}: ${msg}`,'err');
+  }
+}
+
+function startEditBudget(id,currentLimit){
+  const el=document.getElementById(`bedit-${id}`);
+  el.style.display='block';
+  const inp=document.getElementById(`bei-${id}`);
+  inp.value=currentLimit;
+  inp.focus();
+}
+
+function cancelBudgetEdit(id){
+  document.getElementById(`bedit-${id}`).style.display='none';
+}
+
+async function saveBudgetEdit(id){
+  const limitAmount=parseFloat(document.getElementById(`bei-${id}`).value);
+  if(!limitAmount||limitAmount<=0){log('⚠️ Hạn mức phải lớn hơn 0','warn');return;}
+  log(`PUT /api/budgets/${id.substring(0,8)}... → ${limitAmount.toLocaleString('vi-VN')}đ`,'info');
+  const r=await api('PUT',`/api/budgets/${id}`,{limitAmount});
+  if(r.ok){log(`✅ Đã cập nhật hạn mức: ${Number(r.data.limitAmount).toLocaleString('vi-VN')}đ`,'ok');getBudgets();}
+  else log(`❌ ${r.status}: ${r.data?.message||JSON.stringify(r.data)}`,'err');
+}
+
+async function deleteBudget(id){
+  if(!confirm('Xóa ngân sách này?'))return;
+  log(`DELETE /api/budgets/${id.substring(0,8)}...`,'info');
+  const r=await api('DELETE',`/api/budgets/${id}`);
+  if(r.ok||r.status===204){log('✅ Đã xóa ngân sách','ok');getBudgets();}
+  else log(`❌ ${r.status}`,'err');
+}
 
 // Init
 updateUI();
