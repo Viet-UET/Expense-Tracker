@@ -34,3 +34,11 @@ build/
 
 ### Static frontend (do not push to GitHub) ###
 src/main/resources/static/index.html
+
+### HTTP Client private env (contains JWT tokens — never push) ###
+http-client.private.env.json
+
+### HTTP test files (local only) ###
+POST_create_test.http
+
+
