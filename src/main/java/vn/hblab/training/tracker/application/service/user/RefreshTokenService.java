@@ -25,7 +25,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
     @Override
     public AuthResponse execute(RefreshTokenCommand command) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(command.refreshToken())
-                .orElseThrow(() -> new RuntimeException("Refresh token không hợp lệ"));
+                .orElseThrow(() -> new UnauthorizedException("Refresh token không hợp lệ"));
 
         if (refreshToken.isExpired()) {
             throw new UnauthorizedException("Refresh token đã hết hạn");

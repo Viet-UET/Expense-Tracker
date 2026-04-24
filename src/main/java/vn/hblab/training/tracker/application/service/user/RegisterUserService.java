@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import vn.hblab.training.tracker.application.dto.command.RegisterUserCommand;
 import vn.hblab.training.tracker.application.usecase.user.RegisterUserUseCase;
 import vn.hblab.training.tracker.domain.model.user.User;
+import vn.hblab.training.tracker.domain.exception.ConflictException;
 import vn.hblab.training.tracker.domain.repository.UserRepository;
 
 import java.util.UUID;
@@ -22,7 +23,7 @@ public class RegisterUserService implements RegisterUserUseCase {
     @Override
     public void execute(RegisterUserCommand command) {
         if (userRepository.existsByUserName(command.userName())) {
-            throw new IllegalArgumentException("Username đã tồn tại");
+            throw new ConflictException("Username đã tồn tại");
         }
 
         String hashPassword = BCrypt.hashpw(command.passWord(), BCrypt.gensalt());

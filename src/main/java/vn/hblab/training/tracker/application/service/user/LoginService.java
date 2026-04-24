@@ -11,7 +11,6 @@ import vn.hblab.training.tracker.domain.model.refreshtoken.RefreshToken;
 import vn.hblab.training.tracker.domain.model.user.User;
 import vn.hblab.training.tracker.domain.repository.RefreshTokenRepository;
 import vn.hblab.training.tracker.domain.repository.UserRepository;
-import vn.hblab.training.tracker.domain.exception.NotFoundException;
 import vn.hblab.training.tracker.domain.exception.UnauthorizedException;
 
 @Service
@@ -32,7 +31,7 @@ public class LoginService implements LoginUseCase {
     @Override
     public AuthResponse execute(LoginCommand loginCommand) {
         User user = userRepository.findByUserName(loginCommand.userName())
-                .orElseThrow(() -> new NotFoundException("Username không tồn tại"));
+                .orElseThrow(() -> new UnauthorizedException("Sai tên đăng nhập hoặc mật khẩu"));
 
         if (!BCrypt.checkpw(loginCommand.passWord(), user.getPasswordHash())) {
             throw new UnauthorizedException("Sai mật khẩu");
